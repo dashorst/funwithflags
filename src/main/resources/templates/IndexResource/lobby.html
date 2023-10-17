@@ -1,0 +1,5 @@
+<ul class="list-group" id="lobby-list">
+    {#for player in players}
+    <li class="list-group-item {#if player == receiver} list-group-item-info{/if}">{player.name()}</li>
+    {/for}
+</ul>

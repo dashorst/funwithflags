@@ -1,0 +1,9 @@
+<div id="banana" class="z-1">
+    <ul class="list-group">
+        {#for c in countries}
+        <li class="list-group-item" id="{c.code}"
+            onclick="document.getElementsByName('search')[0].value='{c.name}';document.getElementById('banana').innerHTML='';">
+            {c.name}</li>
+        {/for}
+    </ul>
+</div>

@@ -1,0 +1,11 @@
+<div id="turn" class="col-6 offset-3">
+        
+    <h1 class="display-1">Game Over!</h1>
+    <p>No more turns left!</p>
+    <h3>Final Standing</h3>
+    <ol class="list-group">
+        {#for score in game.scores}
+        <li class="list-group-item d-flex justify-content-between"><span class="display-{score_count}">{score_count} {score.player.name}</span><span>{score.score}</span></li>
+        {/for}
+    </ol>
+</div>
