@@ -12,7 +12,7 @@ import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 
-@Path("/country")
+@Path("")
 public class CountryResource {
     @CheckedTemplate
     public static class Templates {
@@ -23,7 +23,7 @@ public class CountryResource {
     CountryRepository countryRepository;
 
     @POST
-    @Path("/search")
+    @Path("/country/search")
     public TemplateInstance search(@FormParam("search") String text) {
         Log.infof("Search: %s", text);
         var result = countryRepository.findCountries(text, 15);

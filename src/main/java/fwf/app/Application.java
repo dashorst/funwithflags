@@ -1,11 +1,10 @@
 package fwf.app;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
+import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
@@ -18,12 +17,6 @@ import jakarta.websocket.Session;
 @Named("funWithFlags")
 public class Application implements FunWithFlagsGame, ApplicationStatus {
     @Inject
-    Event<PlayerRegistered> playerRegistered;
-
-    @Inject
-    Event<PlayerUnregistered> playerUnregistered;
-
-    @Inject
     Event<PlayerGuessed> playerGuessed;
 
     @Inject
@@ -33,35 +26,23 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
     Event<GameDestroyed> gameDestroyed;
 
     @Inject
-    Instance<Player> playerFactory;
-
-    @Inject
     Instance<Game> gameFactory;
 
-    private Map<Session, Player> players = new ConcurrentHashMap<>();
+    @Inject
+    PlayerRepository playerRepository;
 
     private ConcurrentLinkedDeque<Game> games = new ConcurrentLinkedDeque<>();
 
+    private ConcurrentLinkedDeque<Game> finishedGames = new ConcurrentLinkedDeque<>();
+
     @Override
-    public Player registerPlayer(Session session, String name) {
-        var player = playerFactory.get();
-        player.init(session, name);
-        var oldPlayer = players.put(session, player);
-        if (oldPlayer != null) {
-            playerUnregistered.fire(new PlayerUnregistered(oldPlayer));
-        }
-        playerRegistered.fire(new PlayerRegistered(player));
-        return player;
+    public void registerPlayer(Session session, String name) {
+        playerRepository.registerPlayer(session, name);
     }
 
     @Override
-    public Player unregisterPlayer(Session session) {
-        var player = players.remove(session);
-        if (player != null) {
-            playerUnregistered.fire(new PlayerUnregistered(player));
-            playerFactory.destroy(player);
-        }
-        return player;
+    public void unregisterPlayer(Session session) {
+        playerRepository.unregisterPlayer(session);
     }
 
     @Override
@@ -72,12 +53,18 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
     }
 
     @Override
-    public void guess(Session session, int turnNumber, Country country) {
-        var player = players.get(session);
-        if (player == null)
+    public void guess(Player player, int turnNumber, Country country) {
+        var game = games.stream().filter(g -> g.players().contains(player)).findFirst();
+        if (game.isEmpty()) {
+            Log.infof("Game for player %s not found", player);
             return;
-
-        playerGuessed.fire(new PlayerGuessed(turnNumber, player, country));
+        }
+        var turn = game.get().currentTurn();
+        if (turn.isEmpty()) {
+            Log.infof("No turn active for game %s", game.get());
+            return;
+        }
+        playerGuessed.fire(new PlayerGuessed(game.get(), turn.get(), player, country));
     }
 
     @Override
@@ -90,20 +77,26 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
         return games.size();
     }
 
-    ConcurrentLinkedDeque<Game> games() {
+    public ConcurrentLinkedDeque<Game> games() {
         return games;
     }
 
     void startGame(@Observes LobbyFilled lobbyFilled) {
         var game = gameFactory.get();
-        game.init(lobbyFilled.playersInLobby(), FunWithFlagsGame.NUMBER_OF_TURNS_PER_GAME, FunWithFlagsGame.SECONDS_PER_TURN);
+        game.init(lobbyFilled.playersInLobby(), FunWithFlagsGame.NUMBER_OF_TURNS_PER_GAME,
+                FunWithFlagsGame.SECONDS_PER_TURN, FunWithFlagsGame.SECONDS_PER_RESULT);
         games.add(game);
         gameStarted.fire(new GameStarted(game));
+    }
+
+    void onGameFinished(@Observes GameFinished event) {
+        finishedGames.add(event.game());
     }
 
     void destroyed(@Observes GameDestroyed event) {
         Game finishedGame = event.game();
         games.remove(finishedGame);
+        finishedGames.remove(finishedGame);
         gameFactory.destroy(finishedGame);
     }
 }

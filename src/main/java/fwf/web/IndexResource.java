@@ -12,7 +12,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/")
+@Path("")
 @Produces(MediaType.TEXT_HTML)
 public class IndexResource {
     @CheckedTemplate
@@ -28,6 +28,7 @@ public class IndexResource {
     ApplicationStatus applicationStatus;
 
     @GET
+    @Path("/")
     public TemplateInstance get() {
         return Templates.index(FunWithFlagsGame.PLAYERS_PER_GAME, applicationStatus.numberOfGames());
     }

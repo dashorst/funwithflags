@@ -40,7 +40,7 @@ public class CountryRepository {
     }
 
     public List<Country> findCountries(String search, int maxResults) {
-        if(search == null || search.isBlank()) 
+        if (search == null || search.isBlank())
             return Collections.emptyList();
         return countries().stream()
                 .filter(c -> c.name().toLowerCase().contains(search.toLowerCase()))
@@ -49,5 +49,15 @@ public class CountryRepository {
 
     public Optional<Country> findCountryByCode(String code) {
         return countries.stream().filter(c -> c.code().equals(code)).findFirst();
+    }
+
+    public Optional<Country> guess(String countryName) {
+        var countries = findCountries(countryName, 2);
+
+        var country = countries.stream()
+                .filter(c -> countryName.equalsIgnoreCase(c.name())).findFirst()
+                .or(() -> countries.stream().findFirst());
+
+        return country;
     }
 }

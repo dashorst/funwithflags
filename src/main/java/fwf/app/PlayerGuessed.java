@@ -1,4 +1,4 @@
 package fwf.app;
 
-public record PlayerGuessed(int turn, Player player, Country country) {
+public record PlayerGuessed(Game game, Turn turn, Player player, Country country) {
 }

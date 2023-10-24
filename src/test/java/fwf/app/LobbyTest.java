@@ -11,11 +11,15 @@ import fwf.FunWithFlagsGame;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.websocket.Session;
 
 @QuarkusTest
 public class LobbyTest {
     @Inject
     Application application;
+
+    @Inject
+    PlayerRepository playerRepository;
 
     @Inject
     Lobby lobby;
@@ -43,19 +47,25 @@ public class LobbyTest {
         lobby.checkLobbyFilled();
         assertNull(lobbyFilledEvent);
 
-        Player player1 = application.registerPlayer(new MockSession(), "Player 1");
+        Session session1 = new MockSession();
+        application.registerPlayer(session1, "Player 1");
+        Player player1 = playerRepository.bySession(session1).get();
 
         lobby.checkLobbyFilled();
         assertNull(lobbyFilledEvent);
 
         application.unregisterPlayer(player1.session());
 
-        Player player2 = application.registerPlayer(new MockSession(), "Player 2");
+        Session session2 = new MockSession();
+        application.registerPlayer(session2, "Player 2");
+        Player player2 = playerRepository.bySession(session2).get();
 
         lobby.checkLobbyFilled();
         assertNull(lobbyFilledEvent);
 
-        Player player3 = application.registerPlayer(new MockSession(), "Player 3");
+        Session session3 = new MockSession();
+        application.registerPlayer(session3, "Player 3");
+        Player player3 = playerRepository.bySession(session3).get();
         lobby.checkLobbyFilled();
 
         assertNotNull(lobbyFilledEvent);

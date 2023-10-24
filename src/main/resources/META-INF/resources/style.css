@@ -1,3 +1,12 @@
+@font-face {
+    font-family: 'ShadowsIntoLight-Regular';
+    src:  url('Shadows_Into_Light/ShadowsIntoLight-Regular.ttf') format('truetype');
+}
+
+h1 {
+    font-family: 'ShadowsIntoLight-Regular';
+}
+
 .flag {
     border-radius: 4px;
     border: 1px solid #dee2e6;
@@ -11,4 +20,12 @@
     border: 1px solid #e9ecef;
     border-radius: 2px;
     overflow: hidden;
+}
+
+.fader.faded {
+    opacity:.1;
+}
+.fader {
+    opacity:1;
+    transition: opacity ease-in 500ms;
 }

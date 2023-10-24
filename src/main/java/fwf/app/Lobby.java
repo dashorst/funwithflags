@@ -1,6 +1,7 @@
 package fwf.app;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -17,6 +18,10 @@ public class Lobby {
     Event<LobbyFilled> lobbyFilledEvent;
 
     private BlockingQueue<Player> waitingPlayers = new LinkedBlockingDeque<>();
+
+    public List<Player> waitingPlayers() {
+        return new ArrayList<>(waitingPlayers);
+    }
 
     void clear() {
         waitingPlayers.clear();

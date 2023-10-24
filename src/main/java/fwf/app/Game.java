@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.Dependent;
@@ -26,6 +27,9 @@ public class Game {
     Event<TurnStarted> turnStarted;
 
     @Inject
+    Event<TurnSwitched> turnSwitched;
+
+    @Inject
     Event<TurnFinished> turnFinished;
 
     @Inject
@@ -38,12 +42,10 @@ public class Game {
 
     private Turn currentTurn = null;
 
-    private int turnSummaryCountdown = 10;
-
     public Game() {
     }
 
-    public void init(List<Player> playersInLobby, int numberOfTurns, int secondsPerTurn) {
+    public void init(List<Player> playersInLobby, int numberOfTurns, int secondsPerTurn, int secondsPerResult) {
         this.players = playersInLobby;
 
         var countries = new ArrayList<>(countryRepository.countries());
@@ -52,11 +54,15 @@ public class Game {
         for (int i = 0; i < numberOfTurns; i++) {
             var turn = turnFactory.get();
 
-            turn.init(this, i + 1, countries.get(i), secondsPerTurn);
+            turn.init(this, i + 1, countries.get(i), secondsPerTurn, secondsPerResult);
             turns.add(turn);
         }
         currentTurn = turns.get(0);
         turnStarted.fire(new TurnStarted(this, currentTurn));
+    }
+
+    public List<Turn> turns() {
+        return turns;
     }
 
     public boolean isGameOver() {
@@ -90,8 +96,8 @@ public class Game {
         return scores;
     }
 
-    public Turn currentTurn() {
-        return currentTurn;
+    public Optional<Turn> currentTurn() {
+        return Optional.ofNullable(currentTurn);
     }
 
     void tick() {
@@ -99,17 +105,24 @@ public class Game {
             return;
 
         if (currentTurn.isDone()) {
-            turnFinished.fire(new TurnFinished(this, currentTurn));
-            var nextTurn = turns.stream().filter(t -> !t.isDone()).findFirst();
-            if (nextTurn.isPresent()) {
-                currentTurn = nextTurn.get();
-                turnStarted.fire(new TurnStarted(this, currentTurn));
+            if (!currentTurn.isResultDone()) {
+                currentTurn.tick();
+                turnFinished.fire(new TurnFinished(this, currentTurn));
+                Log.infof("Game ticked: %s, turn: #%d, results left: %ds", players().stream().map(Player::name).toList(), turnNumber(), currentTurn.resultsSecondsLeft());
             } else {
-                gameOver = true;
-                gameFinished.fire(new GameFinished(this, "Game over"));
+                var previousTurn = currentTurn;
+                var nextTurn = turns.stream().filter(t -> !t.isDone()).findFirst();
+                if (nextTurn.isPresent()) {
+                    currentTurn = nextTurn.get();
+                    turnSwitched.fire(new TurnSwitched(this, previousTurn, currentTurn));
+                    turnStarted.fire(new TurnStarted(this, currentTurn));
+                } else {
+                    gameOver = true;
+                    gameFinished.fire(new GameFinished(this, "Game over"));
+                }
             }
         } else {
-            Log.infof("Game ticked: %s, turn: #%d", players().stream().map(Player::name).toList(), turnNumber());
+            Log.infof("Game ticked: %s, turn: #%d, seconds left: %ds", players().stream().map(Player::name).toList(), turnNumber(), currentTurn.secondsLeft());
             currentTurn.tick();
         }
     }

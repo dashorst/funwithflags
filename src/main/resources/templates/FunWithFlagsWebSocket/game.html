@@ -1,33 +1,40 @@
-<div id="game" hx-ext="ws" ws-connect="connect:/lobby/{receiver.name}" class="row" hx-swap-oob="innerHTML">
-    <div id="turn" class="col-6 offset-3">
-        
+<div id="game" class="row" hx-ext="ws" ws-connect="/game/{receiver.name}" hx-swap-oob="innerHTML">
+{#fragment id=turnPartial}
+    <div id="turn" class="col-12 col-lg-6 offset-lg-3">
         <h2>Round {game.turnNumber} of {game.numberOfTurns}</h2>
         <h3>Guess the country or territory for this flag</h3>
         <div class="row">
             <div class="col mb-3"><img class="flag-img" src="flags/4x3/{turn.countryToGuess.code}.svg" alt="Guess the country/territory of this flag"></div>
-            <div class="col mb-3"><h1 class="display-1" id="countdown"></h1></div>
+            <div class="col mb-3" hx-ext="class-tools">{#fragment id=countdownPartial}<h1 id="countdown" class="display-1" hx-swap-oob="outerHTML">{turn.secondsLeft}</h1>{/fragment}</div>
         </div>
-        <form hx-post="/guess/{receiver.name}" hx-indicator=".htmx-indicator" hx-target="#chosen">
-            <div class="input-group mt-3">
-                <input class="form-control" type="search" id="search" name="search" placeholder="Enter the country name" hx-trigger="keyup changed delay:500ms, search" hx-post="/country/search" hx-target="#banana" hx-indicator=".htmx-indicator" hx-swap="outerHTML">
-                <button class="btn btn-primary" type="submit"><i class="bi bi-geo-fill"></i> Guess</button>
-                <div class="htmx-indicator spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
+        <section id="guess">
+            <form hx-post="/guess/{receiver.name}/{game.turnNumber}" hx-indicator=".htmx-indicator">
+                <div class="input-group mt-3">
+                    <input class="form-control" type="search" id="search" name="search" placeholder="Enter the country name" hx-trigger="keyup changed delay:500ms, search" hx-post="/country/search" hx-target="#banana" hx-indicator=".htmx-indicator" hx-swap="outerHTML">
+                    <button class="btn btn-primary" type="submit"><i class="bi bi-geo-fill"></i> Guess</button>
+                    <div class="htmx-indicator spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
                 </div>
+            </form>
+            <div id="banana" class="z-1"></div>
+            <div id="submission">
+                <h3 class="my-3">You have submitted:</h3>
+                <ul class="list-group">
+                    <li class="list-group-item disabled">Nothing yet!</li>
+                </ul>    
             </div>
-        </form>
-        <div id="banana" class="z-1"></div>
-        <h3 class="my-3">You have submitted:</h3>
-        <ul class="list-group" id="chosen">
-            <li class="list-group-item disabled">Nothing yet!</li>
-        </ul>
-      </div>
-    <div class="col-3">
-        <h3>Ranking after {game.turnNumber} rounds</h3>
+        </section>
+    </div>
+{/fragment}
+{#fragment id=rankingPartial}
+    <div id="in-game-ranking" class="col-12 col-md-3">
+        <h3>Ranking round {game.turnNumber}</h3>
         <ul class="list-group">
             {#for s in game.scores}
             <li class="list-group-item {#if receiver == s.player} list-group-item-info{/} d-flex justify-content-between"><span>{s.player.name}</span><span>{s.score}</span></li>
             {/for}
         </ul>
     </div>
+{/fragment}
 </div>

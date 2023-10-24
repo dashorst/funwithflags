@@ -1,0 +1,95 @@
+<main id="admin" hx-swap-oob="outerHTML">
+    <div class="row text-end">
+        <div class="col">
+            <div class="card bg-primary mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.playersRegistered}</div>
+                    <div class="w-100">Players registered</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-primary-subtle mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.gamesStarted}</div>
+                    <div class="text-right">Games started</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-info mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.gamesPlayed}</div>
+                    <div class="text-right">Games finished</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-danger-subtle mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.turnsStarted}</div>
+                    <div class="text-right">Turns started</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-warning mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.turnsPlayed}</div>
+                    <div class="text-right">Turns finished</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-danger mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.countriesGuessed}</div>
+                    <div class="text-right">Guesses</div>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card bg-success mb-4 text-white">
+                <div class="card-body">
+                    <div class="display-3">{stats.correctPercentage}%</div>
+                    <div class="text-right">Correct</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {#if application.games}
+    <table class="w-100">
+        <thead>
+        <tr>
+            <th></th>
+        {#for i in NUMBER_OF_TURNS_PER_GAME}
+            <th class="text-start">Turn {i}</th>
+        {/for}
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {#for game in application.games}
+        <tr>
+            <th style="width:2rem">{game_count}</th>
+            {#for turn in game.turns}
+            <td class="text-start">
+                <img class="mr-1 border border-5" style="width:4rem" src="/flags/4x3/{turn.countryToGuess.code}.svg" title="Country to guess">
+                {#for guess in turn.guesses}
+                <img class="mr-1 border border-5 border-{#if guess.isCorrect}success{#else}danger{/if}" style="width:4rem" src="/flags/4x3/{guess.guessedCountry.code}.svg" title="Guessed by {guess.player.name}">
+                {/for}
+            </td>
+            {/for}
+            <td class="align-top">
+                {#for score in game.scores}
+                <div class="d-flex w-100 justify-content-between">
+                    <span>{score.player.name}</span><span>{score.score}</span>
+                </div>
+                {/for}
+            </td>
+        </tr>
+        {/for}
+        </tbody>
+    </table>
+{/if}
+</main>

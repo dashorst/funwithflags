@@ -6,4 +6,17 @@ public record Country(String capital, String code, String continent, String flag
         public int compareTo(Country o) {
                 return name.compareTo(o.name());
         }
+
+        @Override
+        public boolean equals(Object other) {
+                if (other instanceof Country country) {
+                        return code.equals(country.code);
+                }
+                return false;
+        }
+
+        @Override
+        public int hashCode() {
+                return code.hashCode();
+        }
 }

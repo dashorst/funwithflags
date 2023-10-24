@@ -31,4 +31,16 @@ public class CountriesRepositoryTest {
         var first = found.get(0);
         assertEquals("French Southern Territories", first.name());
     }
+
+    @Test
+    public void guessExactMatch() {
+        var found = countryRepository.guess("sudan");
+        assertEquals("Sudan", found.get().name());
+    }
+
+    @Test
+    public void guessExactMatch2() {
+        var found = countryRepository.guess("guyana");
+        assertEquals("Guyana", found.get().name());
+    }
 }

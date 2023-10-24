@@ -1,0 +1,10 @@
+<div id="submission" hx-swap-oob="outerHTML" hx-swap="outerHTML">
+    <h3 class="my-3">You have submitted:</h3>
+    <ul class="list-group" id="chosen">
+        {#if choice}
+        <li class="list-group-item disabled">{choice.name}</li>
+        {#else}
+        <li class="list-group-item disabled">Nothing yet!</li>
+        {/if}
+    </ul>    
+</div>
