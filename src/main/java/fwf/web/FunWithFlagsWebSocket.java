@@ -1,5 +1,7 @@
 package fwf.web;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,6 +36,7 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import jakarta.ws.rs.Encoded;
 
 @ServerEndpoint("/game/{player}")
 @ApplicationScoped
@@ -69,14 +72,16 @@ public class FunWithFlagsWebSocket {
     Lobby lobby;
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("player") String player) {
+    public void onOpen(Session session, @PathParam("player") String encodedPlayer) {
+        var player = URLDecoder.decode(encodedPlayer, StandardCharsets.UTF_8);
         Log.infof("User %s joined", player);
         sessions.put(player, session);
         funWithFlagsGame.registerPlayer(session, player);
     }
 
     @OnError
-    public void onError(Session session, @PathParam("player") String player, Throwable throwable) {
+    public void onError(Session session, @PathParam("player") String encodedPlayer, Throwable throwable) {
+        var player = URLDecoder.decode(encodedPlayer, StandardCharsets.UTF_8);
         sessions.remove(player);
         Log.infof("User %s left on error: ", player, throwable);
     }
@@ -168,7 +173,8 @@ public class FunWithFlagsWebSocket {
     }
 
     @OnClose
-    public void onClose(Session session, @PathParam("player") String player) {
+    public void onClose(Session session, @PathParam("player") String encodedPlayer) {
+        var player = URLDecoder.decode(encodedPlayer, StandardCharsets.UTF_8);
         Log.infof("User %s left", player);
         sessions.remove(player);
         funWithFlagsGame.unregisterPlayer(session);
