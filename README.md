@@ -1,4 +1,4 @@
-# Fun With Flags
+# Fun With Flags 🇳🇱🇸🇨🇯🇪🇬🇭
 
 This multiplayer "Guess the country/territory/organization of a flag" game was created for a presentation about [HTMX](https://htmx.org).
 
