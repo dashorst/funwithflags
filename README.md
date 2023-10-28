@@ -19,6 +19,7 @@ Technologies used:
 - [Web Sockets](https://quarkus.io/extensions/io.quarkus/quarkus-websockets)
 - [Qute](https://quarkus.io/extensions/io.quarkus/quarkus-qute)
 - [Scheduler](https://quarkus.io/extensions/io.quarkus/quarkus-scheduler)
+- [Shadows into Light](https://fonts.google.com/specimen/Shadows+Into+Light/about) font by Kimberly Geswein
 
 ## Running the application in dev mode
 
