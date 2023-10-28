@@ -1,7 +1,6 @@
 package fwf.country;
 
 import java.io.IOException;
-import java.text.Collator;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
 import java.util.Collections;
@@ -32,7 +31,9 @@ public class CountryRepository {
                         .map(j -> new Country(j.getString("capital", ""), j.getString("code"),
                                 j.getString("continent", ""),
                                 j.getString("flag_1x1"), j.getString("flag_4x3"), j.getBoolean("iso"),
-                                j.getString("name"), Normalizer.normalize(j.getString("name"), Form.NFKD).replaceAll("\\p{M}", "").toLowerCase()))
+                                j.getString("name"),
+                                Normalizer.normalize(j.getString("name"), Form.NFKD).replaceAll("\\p{M}", "")
+                                        .toLowerCase()))
                         .toList();
             }
             throw new IllegalStateException("No countries found");
@@ -50,7 +51,7 @@ public class CountryRepository {
             return Collections.emptyList();
         if (!Normalizer.isNormalized(search, Form.NFKD))
             search = Normalizer.normalize(search, Form.NFKD);
-        
+
         var searchString = search;
         return countries().stream()
                 .filter(c -> c.normalizedName().contains(searchString.toLowerCase()))
