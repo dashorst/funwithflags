@@ -21,6 +21,9 @@ public class CountryRepository {
 
     private List<Country> readCountries() {
         try (var is = getClass().getResourceAsStream("/countries.json");) {
+            if (is == null)
+                throw new IllegalStateException("File not packaged: /countries.json");
+
             var parser = Json.createParser(is);
             if (parser.hasNext()) {
                 parser.next();
