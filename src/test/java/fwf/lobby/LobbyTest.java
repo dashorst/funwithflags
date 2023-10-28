@@ -3,13 +3,17 @@ package fwf.lobby;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import fwf.FunWithFlagsGame;
 import fwf.app.Application;
 import fwf.app.MockSession;
+import fwf.config.Configuration;
 import fwf.player.Player;
 import fwf.player.PlayerRepository;
 import io.quarkus.test.junit.QuarkusTest;
@@ -24,6 +28,9 @@ public class LobbyTest {
 
     @Inject
     PlayerRepository playerRepository;
+
+    @Inject
+    Configuration configuration;
 
     @Inject
     Lobby lobby;
@@ -60,32 +67,32 @@ public class LobbyTest {
 
         application.unregisterPlayer(player1.session());
 
-        Session session2 = new MockSession();
-        application.registerPlayer(session2, "Player 2");
-        Player player2 = playerRepository.bySession(session2).get();
-
-        lobby.checkLobbyFilled();
-        assertNull(lobbyFilledEvent);
-
-        Session session3 = new MockSession();
-        application.registerPlayer(session3, "Player 3");
-        Player player3 = playerRepository.bySession(session3).get();
+        List<Session> sessions = new ArrayList<>();
+        List<Player> players = new ArrayList<>();
+        for (int i = 1; i <= configuration.numberOfPlayersPerGame(); i++) {
+            Session session = new MockSession();
+            application.registerPlayer(session, "Player " + i);
+            sessions.add(session);
+            players.add(playerRepository.bySession(session).get());
+        }
         lobby.checkLobbyFilled();
 
-        assertNotNull(lobbyFilledEvent);
-        assertEquals(FunWithFlagsGame.PLAYERS_PER_GAME, lobbyFilledEvent.playersInLobby().size());
-        assertEquals(player2.name(), lobbyFilledEvent.playersInLobby().get(0).name());
-        assertEquals(player3.name(), lobbyFilledEvent.playersInLobby().get(1).name());
+        assertNotNull(lobbyFilledEvent, "Lobby should be filled");
+        assertEquals(configuration.numberOfPlayersPerGame(), lobbyFilledEvent.playersInLobby().size());
+        for (Player player : players) {
+            assertTrue(lobbyFilledEvent.playersInLobby().stream().map(Player::name).anyMatch(player.name()::equals),
+                    player.name());
+        }
     }
 
     @Test
     public void fillingLobbyFiresLobbyFilledEvent() {
-        for (int i = 1; i <= FunWithFlagsGame.PLAYERS_PER_GAME; i++) {
+        for (int i = 1; i <= configuration.numberOfPlayersPerGame(); i++) {
             application.registerPlayer(new MockSession(), "Player " + i);
         }
         lobby.checkLobbyFilled();
         assertNotNull(lobbyFilledEvent);
-        assertEquals(FunWithFlagsGame.PLAYERS_PER_GAME, lobbyFilledEvent.playersInLobby().size());
+        assertEquals(configuration.numberOfPlayersPerGame(), lobbyFilledEvent.playersInLobby().size());
         assertEquals("Player 1", lobbyFilledEvent.playersInLobby().get(0).name());
     }
 }

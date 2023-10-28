@@ -100,8 +100,9 @@ public class ApplicationTest {
     public void destroyTest() throws InterruptedException {
         gamesStarted = new CountDownLatch(1);
 
-        application.registerPlayer(new MockSession(), "Martijn");
-        application.registerPlayer(new MockSession(), "Pieter");
+        for(int i = 1; i <= application.numberOfPlayersPerGame(); i++) {
+            application.registerPlayer(new MockSession(), "Player" + i);
+        }
 
         gamesStarted.await(5, TimeUnit.SECONDS);
 

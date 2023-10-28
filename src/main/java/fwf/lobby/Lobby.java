@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import fwf.app.Application;
+import fwf.config.Configuration;
 import fwf.player.Player;
 import fwf.player.PlayerRegistered;
 import fwf.player.PlayerUnregistered;
@@ -20,6 +20,9 @@ import jakarta.inject.Inject;
 public class Lobby {
     @Inject
     Event<LobbyFilled> lobbyFilledEvent;
+
+    @Inject
+    Configuration configuration;
 
     private BlockingQueue<Player> waitingPlayers = new LinkedBlockingDeque<>();
 
@@ -43,12 +46,13 @@ public class Lobby {
 
     @Scheduled(every = "1s")
     void checkLobbyFilled() {
-        if (waitingPlayers.size() < Application.PLAYERS_PER_GAME)
+        int numberOfPlayersPerGame = configuration.numberOfPlayersPerGame();
+        if (waitingPlayers.size() < numberOfPlayersPerGame)
             return;
 
         var gamePlayers = new ArrayList<Player>();
-        int added = waitingPlayers.drainTo(gamePlayers, Application.PLAYERS_PER_GAME);
-        if (added < Application.PLAYERS_PER_GAME) {
+        int added = waitingPlayers.drainTo(gamePlayers, numberOfPlayersPerGame);
+        if (added < numberOfPlayersPerGame) {
             // re-add the picked players to the waiting list
             waitingPlayers.addAll(gamePlayers);
             return;

@@ -19,6 +19,12 @@
 
 <body>
     <div class="container-fluid mt-3" hx-ext="ws" ws-connect="/admin/ws">
+        <div class="text-small d-flex justify-content-between">
+            <span>Number of players per game: {configuration.numberOfPlayersPerGame}</span>
+            <span>Number of turns per game: {configuration.numberOfTurnsPerGame}</span>
+            <span>Number of seconds per turn: {configuration.numberOfSecondsPerTurn}</span>
+            <span>Number of seconds per result: {configuration.numberOfSecondsPerResult}</span>
+        </div>
         <main id="admin"></main>
     </div>
 </body>

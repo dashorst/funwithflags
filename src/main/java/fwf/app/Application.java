@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
 import fwf.clock.Clock;
+import fwf.config.Configuration;
 import fwf.country.Country;
 import fwf.game.Game;
 import fwf.game.GameDestroyed;
@@ -27,6 +28,9 @@ import jakarta.websocket.Session;
 @Named("funWithFlags")
 public class Application implements FunWithFlagsGame, ApplicationStatus {
     @Inject
+    Configuration configuration;
+
+    @Inject
     Event<PlayerGuessed> playerGuessed;
 
     @Inject
@@ -40,13 +44,29 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
 
     @Inject
     Clock clock;
-    
+
     @Inject
     PlayerRepository playerRepository;
 
     private ConcurrentLinkedDeque<Game> games = new ConcurrentLinkedDeque<>();
 
     private ConcurrentLinkedDeque<Game> finishedGames = new ConcurrentLinkedDeque<>();
+
+    public int numberOfTurnsPerGame() {
+        return configuration.numberOfTurnsPerGame();
+    }
+
+    public int numberOfPlayersPerGame() {
+        return configuration.numberOfPlayersPerGame();
+    }
+
+    public int numberOfSecondsPerResult() {
+        return configuration.numberOfSecondsPerResult();
+    }
+
+    public int numberOfSecondsPerTurn() {
+        return configuration.numberOfSecondsPerTurn();
+    }
 
     @Override
     public void registerPlayer(Session session, String name) {
@@ -60,7 +80,7 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
 
     @Override
     public void tick() {
-        for (Game game : games ) {
+        for (Game game : games) {
             game.onTick();
         }
     }
@@ -96,8 +116,8 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
 
     void startGame(@Observes LobbyFilled lobbyFilled) {
         var game = gameFactory.get();
-        game.init(lobbyFilled.playersInLobby(), FunWithFlagsGame.NUMBER_OF_TURNS_PER_GAME,
-                FunWithFlagsGame.SECONDS_PER_TURN, FunWithFlagsGame.SECONDS_PER_RESULT);
+        game.init(lobbyFilled.playersInLobby(), numberOfTurnsPerGame(),
+                numberOfSecondsPerTurn(), numberOfSecondsPerResult());
         games.add(game);
         gameStarted.fire(new GameStarted(game));
     }

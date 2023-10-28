@@ -6,6 +6,7 @@ import java.util.List;
 
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
+import fwf.config.Configuration;
 import fwf.lobby.Lobby;
 import fwf.player.Player;
 import io.quarkus.qute.CheckedTemplate;
@@ -36,10 +37,13 @@ public class IndexResource {
     @Inject
     Lobby lobby;
 
+    @Inject
+    Configuration configuration;
+    
     @GET
     @Path("/")
     public TemplateInstance get() {
-        return Templates.index(FunWithFlagsGame.PLAYERS_PER_GAME, applicationStatus.numberOfGames());
+        return Templates.index(configuration.numberOfPlayersPerGame(), applicationStatus.numberOfGames());
     }
 
     @POST

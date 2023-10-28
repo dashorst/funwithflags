@@ -45,6 +45,10 @@ public class Game {
     private List<Player> players = Collections.emptyList();
     private List<Turn> turns = new ArrayList<>();
 
+    private int secondsPerTurn;
+
+    private int secondsPerResult;
+
     private boolean gameOver = false;
 
     private Turn currentTurn = null;
@@ -54,6 +58,8 @@ public class Game {
 
     public void init(List<Player> playersInLobby, int numberOfTurns, int secondsPerTurn, int secondsPerResult) {
         this.players = playersInLobby;
+        this.secondsPerResult = secondsPerResult;
+        this.secondsPerTurn = secondsPerTurn;
 
         var countries = new ArrayList<>(countryRepository.countries());
         Collections.shuffle(countries);

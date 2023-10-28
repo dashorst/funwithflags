@@ -1,10 +1,7 @@
 package fwf.country;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Test;
@@ -59,5 +56,18 @@ public class CountriesRepositoryTest {
     public void guessAccented2() {
         var found = countryRepository.findCountries("tur", 5);
         assertEquals(Arrays.asList("tc", "tm", "tr"), found.stream().map(Country::code).sorted().toList());
+    }
+
+    @Test
+    public void guessAccented3() {
+        var found = countryRepository.findCountries("cot", 15);
+        assertEquals(Arrays.asList("ci", "gb-sct"), found.stream().map(Country::code).sorted().toList());
+
+        var found2 = countryRepository.findCountries("ivo", 5);
+        assertEquals(Arrays.asList("ci"), found2.stream().map(Country::code).sorted().toList());
+
+        var found3 = countryRepository.findCountries("co", 15);
+        assertEquals(Arrays.asList("cc", "cd", "cg", "ci", "ck", "co", "cr", "eac", "es-pv", "gb-sct", "km", "ma", "mc",
+                "mx", "pr"), found3.stream().map(Country::code).sorted().toList());
     }
 }
