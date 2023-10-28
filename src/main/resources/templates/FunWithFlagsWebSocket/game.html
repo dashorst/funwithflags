@@ -8,7 +8,7 @@
             <div class="col mb-3" hx-ext="class-tools">{#fragment id=countdownPartial}<h1 id="countdown" class="display-1" hx-swap-oob="outerHTML">{turn.secondsLeft}</h1>{/fragment}</div>
         </div>
         <section id="guess">
-            <form hx-post="/guess/{receiver.name}/{game.turnNumber}" hx-indicator=".htmx-indicator">
+            <form hx-post="/guess/{receiver.name}/{game.turnNumber}">
                 <script>
                     function checkUserKeydown(event) {
                         return event instanceof KeyboardEvent
