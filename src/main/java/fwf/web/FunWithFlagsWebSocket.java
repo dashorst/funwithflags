@@ -155,7 +155,7 @@ public class FunWithFlagsWebSocket {
         var player = event.player();
         var session = sessions.get(player.name());
         var guess = event.guess();
-        Log.infof("Player %s guessed %s", player.name(), guess.guessedCountry() == null ? "" : guess.guessedCountry().name());
+        Log.infof("Game %s, player %s guessed %s", game, player.name(), guess.guessedCountry() == null ? "" : guess.guessedCountry().name());
         var html = Templates.submissionPartial(guess.guessedCountry()).render();
         session.getAsyncRemote().sendObject(html);
     }

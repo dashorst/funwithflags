@@ -45,8 +45,8 @@ public class Game {
     private List<Player> players = Collections.emptyList();
     private List<Turn> turns = new ArrayList<>();
 
-    private int secondsPerTurn;
-
+    private String playerNames;
+    
     private int secondsPerResult;
 
     private boolean gameOver = false;
@@ -58,8 +58,8 @@ public class Game {
 
     public void init(List<Player> playersInLobby, int numberOfTurns, int secondsPerTurn, int secondsPerResult) {
         this.players = playersInLobby;
+        this.playerNames = players.stream().map(Player::name).toList().toString();
         this.secondsPerResult = secondsPerResult;
-        this.secondsPerTurn = secondsPerTurn;
 
         var countries = new ArrayList<>(countryRepository.countries());
         Collections.shuffle(countries);
@@ -168,6 +168,6 @@ public class Game {
 
     @Override
     public String toString() {
-        return players.stream().map(Player::name).toList() + ", turn " + turnNumber();
+        return playerNames + ", turn " + turnNumber();
     }
 }
