@@ -9,6 +9,7 @@ import fwf.FunWithFlagsGame;
 import fwf.config.Configuration;
 import fwf.lobby.Lobby;
 import fwf.player.Player;
+import io.quarkus.logging.Log;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
@@ -50,6 +51,7 @@ public class IndexResource {
     @Path("/join")
     public TemplateInstance join(@FormParam("playername") String playername) {
         var name = URLDecoder.decode(playername, StandardCharsets.UTF_8);
+        Log.infof("Player %s tries to join", name);
         return Templates.joined(name, lobby.waitingPlayers());
     }
 }

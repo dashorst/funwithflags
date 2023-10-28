@@ -8,7 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
-import fwf.app.Score;
 import fwf.country.Country;
 import fwf.game.Game;
 import fwf.game.GameFinished;
@@ -111,6 +110,7 @@ public class FunWithFlagsWebSocket {
         var game = event.game();
         var players = game.players();
         var turn = game.currentTurn().get();
+        Log.infof("Game started: %s", players.stream().map(Player::name).toList());
         for (Player player : players) {
             var html = Templates.game(player, game, turn).render();
             player.session().getAsyncRemote().sendObject(html);
@@ -155,6 +155,7 @@ public class FunWithFlagsWebSocket {
         var player = event.player();
         var session = sessions.get(player.name());
         var guess = event.guess();
+        Log.infof("Player %s guessed %s", player.name(), guess.guessedCountry() == null ? "" : guess.guessedCountry().name());
         var html = Templates.submissionPartial(guess.guessedCountry()).render();
         session.getAsyncRemote().sendObject(html);
     }

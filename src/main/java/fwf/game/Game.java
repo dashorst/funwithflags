@@ -125,7 +125,7 @@ public class Game {
             if (!currentTurn.isResultDone()) {
                 currentTurn.tick();
                 turnFinished.fire(new TurnFinished(this, currentTurn));
-                Log.infof("Game ticked: %s, turn: #%d, results left: %ds",
+                Log.debugf("Game ticked: %s, turn: #%d, results left: %ds",
                         players().stream().map(Player::name).toList(), turnNumber(), currentTurn.resultsSecondsLeft());
             } else {
                 var previousTurn = currentTurn;
@@ -140,7 +140,7 @@ public class Game {
                 }
             }
         } else {
-            Log.infof("Game ticked: %s, turn: #%d, seconds left: %ds", players().stream().map(Player::name).toList(),
+            Log.debugf("Game ticked: %s, turn: #%d, seconds left: %ds", players().stream().map(Player::name).toList(),
                     turnNumber(), currentTurn.secondsLeft());
             currentTurn.tick();
         }

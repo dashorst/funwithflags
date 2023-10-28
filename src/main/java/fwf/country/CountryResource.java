@@ -23,7 +23,7 @@ public class CountryResource {
     @POST
     @Path("/country/search")
     public TemplateInstance search(@FormParam("search") String text) {
-        Log.infof("Search: %s", text);
+        Log.debugf("Search: %s", text);
         var result = countryRepository.findCountries(text, 15);
         return Templates.results(result);
     }

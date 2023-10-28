@@ -9,11 +9,11 @@ import jakarta.enterprise.event.ObservesAsync;
 public class ConsoleLogger {
     public void observeAllEvents(@Observes Object event) {
         if (event.getClass().getName().startsWith("fwf"))
-            Log.infof("Sync Event: %s", event);
+            Log.debugf("Sync Event: %s", event);
     }
 
     public void observeAllAsyncEvents(@ObservesAsync Object event) {
         if (event.getClass().getName().startsWith("fwf"))
-            Log.infof("Async Event: %s", event);
+            Log.debugf("Async Event: %s", event);
     }
 }
