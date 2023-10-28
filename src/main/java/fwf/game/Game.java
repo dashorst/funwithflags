@@ -123,8 +123,11 @@ public class Game {
 
         if (currentTurn.isDone()) {
             if (!currentTurn.isResultDone()) {
+                // fire turn finished only once
+                if (currentTurn.resultsSecondsLeft() == secondsPerResult)
+                    turnFinished.fire(new TurnFinished(this, currentTurn));
+
                 currentTurn.tick();
-                turnFinished.fire(new TurnFinished(this, currentTurn));
                 Log.debugf("Game ticked: %s, turn: #%d, results left: %ds",
                         players().stream().map(Player::name).toList(), turnNumber(), currentTurn.resultsSecondsLeft());
             } else {

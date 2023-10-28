@@ -76,12 +76,12 @@ public class Turn {
             return;
 
         turnTicksRemaining = Math.max(-1, turnTicksRemaining - 1);
-        done = turnTicksRemaining == -1;
         if (done) {
             resultTicksRemaining = Math.max(-1, resultTicksRemaining - 1);
             resultDone = resultTicksRemaining == -1;
         }
-        Log.infof("Game turn ticked: %s, secondsLeft: %d", game.players().stream().map(Player::name).toList(),
+        done = turnTicksRemaining == -1;
+        Log.debugf("Game turn ticked: %s, secondsLeft: %d", game.players().stream().map(Player::name).toList(),
                 turnTicksRemaining);
         clockTicked.fire(new TurnClockTicked(game, this, secondsLeft()));
     }
