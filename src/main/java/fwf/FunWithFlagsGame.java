@@ -1,8 +1,8 @@
 package fwf;
 
-import fwf.app.Country;
-import fwf.app.Game;
-import fwf.app.Player;
+import fwf.country.Country;
+import fwf.game.Game;
+import fwf.player.Player;
 import io.quarkus.qute.TemplateGlobal;
 import jakarta.websocket.Session;
 

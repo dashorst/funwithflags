@@ -4,6 +4,16 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
+import fwf.clock.Clock;
+import fwf.country.Country;
+import fwf.game.Game;
+import fwf.game.GameDestroyed;
+import fwf.game.GameFinished;
+import fwf.game.GameStarted;
+import fwf.lobby.LobbyFilled;
+import fwf.player.Player;
+import fwf.player.PlayerGuessed;
+import fwf.player.PlayerRepository;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
@@ -29,6 +39,9 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
     Instance<Game> gameFactory;
 
     @Inject
+    Clock clock;
+    
+    @Inject
     PlayerRepository playerRepository;
 
     private ConcurrentLinkedDeque<Game> games = new ConcurrentLinkedDeque<>();
@@ -47,8 +60,8 @@ public class Application implements FunWithFlagsGame, ApplicationStatus {
 
     @Override
     public void tick() {
-        for (Game game : games) {
-            game.tick();
+        for (Game game : games ) {
+            game.onTick();
         }
     }
 

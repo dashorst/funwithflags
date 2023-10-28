@@ -10,6 +10,10 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import fwf.game.Game;
+import fwf.game.GameStarted;
+import fwf.player.PlayerRegistered;
+import fwf.player.PlayerUnregistered;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;

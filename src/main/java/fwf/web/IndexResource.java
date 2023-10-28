@@ -1,7 +1,13 @@
 package fwf.web;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
+import fwf.lobby.Lobby;
+import fwf.player.Player;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.inject.Inject;
@@ -18,7 +24,7 @@ public class IndexResource {
     @CheckedTemplate
     public static class Templates {
         public static native TemplateInstance index(int nrOfPlayersPerGame, int nrOfGames);
-        public static native TemplateInstance joined(String playername);
+        public static native TemplateInstance joined(String playername, List<Player> players);
     }
 
     @Inject
@@ -26,6 +32,9 @@ public class IndexResource {
 
     @Inject
     ApplicationStatus applicationStatus;
+
+    @Inject
+    Lobby lobby;
 
     @GET
     @Path("/")
@@ -36,6 +45,7 @@ public class IndexResource {
     @POST
     @Path("/join")
     public TemplateInstance join(@FormParam("playername") String playername) {
-        return Templates.joined(playername);
+        var name = URLDecoder.decode(playername, StandardCharsets.UTF_8);
+        return Templates.joined(name, lobby.waitingPlayers());
     }
 }

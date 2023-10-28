@@ -1,13 +1,16 @@
 <section id="countdown" hx-swap-oob="outerHTML" hx-swap="outerHTML">
         <h5 class="my-3">Correct answer</h5>
+        <div class="d-flex justify-content-between fs-3">
+            <b>Name</b><span">{turn.countryToGuess.name}</span>
+        </div>
         <div class="d-flex justify-content-between">
             <b>Code</b><span>{turn.countryToGuess.code}</span>
         </div>
         <div class="d-flex justify-content-between">
-            <b>Name</b><span>{turn.countryToGuess.name}</span>
+            <b>Capital</b><span>{turn.countryToGuess.capital}</span>
         </div>
         <div class="d-flex justify-content-between">
-            <b>Capital</b><span>{turn.countryToGuess.capital}</span>
+            <b>Continent</b><span>{turn.countryToGuess.continent}</span>
         </div>
     </div>
 </section>

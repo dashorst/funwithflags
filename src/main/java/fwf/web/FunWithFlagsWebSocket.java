@@ -8,21 +8,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fwf.ApplicationStatus;
 import fwf.FunWithFlagsGame;
-import fwf.app.Country;
-import fwf.app.Game;
-import fwf.app.GameFinished;
-import fwf.app.GameStarted;
-import fwf.app.Guess;
-import fwf.app.Lobby;
-import fwf.app.LobbyFilled;
-import fwf.app.Player;
-import fwf.app.PlayerRegistered;
 import fwf.app.Score;
-import fwf.app.Turn;
-import fwf.app.TurnClockTicked;
-import fwf.app.TurnFinished;
-import fwf.app.TurnGuessRecorded;
-import fwf.app.TurnStarted;
+import fwf.country.Country;
+import fwf.game.Game;
+import fwf.game.GameFinished;
+import fwf.game.GameStarted;
+import fwf.guess.Guess;
+import fwf.lobby.Lobby;
+import fwf.lobby.LobbyFilled;
+import fwf.player.Player;
+import fwf.player.PlayerRegistered;
+import fwf.turn.Turn;
+import fwf.turn.TurnClockTicked;
+import fwf.turn.TurnFinished;
+import fwf.turn.TurnGuessRecorded;
+import fwf.turn.TurnStarted;
 import io.quarkus.logging.Log;
 import io.quarkus.qute.CheckedTemplate;
 import io.quarkus.qute.TemplateInstance;
@@ -36,7 +36,6 @@ import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
-import jakarta.ws.rs.Encoded;
 
 @ServerEndpoint("/game/{player}")
 @ApplicationScoped
@@ -44,7 +43,7 @@ public class FunWithFlagsWebSocket {
     @CheckedTemplate
     public static class Templates {
         public static native TemplateInstance submissionPartial(Country choice);
-        
+
         public static native TemplateInstance game$countdownPartial(Player receiver, Game game, Turn turn);
 
         public static native TemplateInstance game$rankingPartial(Player receiver, Game game, Turn turn);
@@ -53,7 +52,8 @@ public class FunWithFlagsWebSocket {
 
         public static native TemplateInstance game(Player receiver, Game game, Turn turn);
 
-        public static native TemplateInstance game$turnPartial(Player receiver, Game game, Turn turn, Country countryToGuess);
+        public static native TemplateInstance game$turnPartial(Player receiver, Game game, Turn turn,
+                Country countryToGuess);
 
         public static native TemplateInstance turnover(Player receiver, Game game, Turn turn, Guess guess);
 
@@ -120,9 +120,10 @@ public class FunWithFlagsWebSocket {
     public void onGameFinished(@Observes GameFinished event) {
         var game = event.game();
         var players = game.players();
+        Log.infof("Game %s finished, winner %s", game.players().stream().map(Player::name).toList(),
+                game.scores().stream().findFirst().map(s -> s.player().name() + " " + s.score()).orElse("-"));
         for (Player player : players) {
             var html = Templates.gameover(player, game).render();
-            Log.infof("Sending %s to %s", html, player.name());
             player.session().getAsyncRemote().sendObject(html);
         }
         funWithFlagsGame.destroyGame(game);
@@ -141,6 +142,8 @@ public class FunWithFlagsWebSocket {
 
     public void onTurnClockTicked(@Observes TurnClockTicked turnClockTicked) {
         var game = turnClockTicked.game();
+        if(turnClockTicked.turn().isDone())
+            return;
         for (var player : game.players()) {
             var html = Templates.game$countdownPartial(player, game, turnClockTicked.turn()).render();
             player.session().getAsyncRemote().sendObject(html);
@@ -154,18 +157,16 @@ public class FunWithFlagsWebSocket {
         var guess = event.guess();
         var html = Templates.submissionPartial(guess.guessedCountry()).render();
         session.getAsyncRemote().sendObject(html);
-        for (Score score : game.scores()) {
-            Log.infof("Score for player %s: %d", score.player().name(), score.score());
-        }
-        // todo notify other players that this player has submitted a guess
     }
 
     public void onTurnFinished(@Observes TurnFinished event) {
         var game = event.game();
         var turn = event.turn();
 
-        Log.infof("Turn %d finished for game %s", turn.turnNumber(), game.players().stream().map(Player::name).toList());
-        for(var receiver : game.players()) {
+        Log.infof("Turn %d finished for game %s", turn.turnNumber(),
+                game.players().stream().map(Player::name).toList());
+
+        for (var receiver : game.players()) {
             var guess = turn.guesses().stream().filter(g -> g.player().equals(receiver)).findFirst();
             var html = Templates.turnover(receiver, game, turn, guess.orElse(null)).render();
             receiver.session().getAsyncRemote().sendObject(html);

@@ -1,8 +1,13 @@
 <div id="game"  hx-ext="ws" ws-connect="/game/{playername}" class="row">
     <div class="col-12 text-center">
         <h3>Joining lobby...</h3>
+        {#fragment id=lobby}
         <ul class="list-group" id="lobby-list">
+            {#for player in players}
+            <li class="list-group-item {#if player.name == playername} list-group-item-info{/if}">{player.name()}</li>
+            {/for}
         </ul>
+        {/fragment}
         <p>Waiting for other players to join!</p>
     </div>
 </div>
