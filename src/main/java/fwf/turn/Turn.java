@@ -47,7 +47,7 @@ public class Turn {
         var player = event.player();
 
         if (turn.isDone()) {
-            Log.infof("Turn %s is done, guess for player %s not recorded", turn, event.player().name());
+            Log.infof("Game %s turn %s is done, guess for player %s not recorded", game.toString(), turn.turnNumber(), event.player().name());
             return;
         }
 

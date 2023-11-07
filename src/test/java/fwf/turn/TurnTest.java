@@ -75,6 +75,12 @@ public class TurnTest {
         assertTrue(turn.isDone());
         assertEquals(0, turn.secondsLeft());
         assertFalse(turn.isResultDone());
+        assertEquals(3, turn.resultsSecondsLeft());
+
+        turn.tick();
+        assertTrue(turn.isDone());
+        assertEquals(0, turn.secondsLeft());
+        assertFalse(turn.isResultDone());
         assertEquals(2, turn.resultsSecondsLeft());
 
         turn.tick();
