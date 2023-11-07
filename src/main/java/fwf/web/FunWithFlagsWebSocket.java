@@ -17,6 +17,7 @@ import fwf.lobby.Lobby;
 import fwf.lobby.LobbyFilled;
 import fwf.player.Player;
 import fwf.player.PlayerRegistered;
+import fwf.player.PlayerUnregistered;
 import fwf.turn.Turn;
 import fwf.turn.TurnClockTicked;
 import fwf.turn.TurnFinished;
@@ -81,6 +82,7 @@ public class FunWithFlagsWebSocket {
     @OnError
     public void onError(Session session, @PathParam("player") String encodedPlayer, Throwable throwable) {
         var player = URLDecoder.decode(encodedPlayer, StandardCharsets.UTF_8);
+        funWithFlagsGame.unregisterPlayer(session);
         sessions.remove(player);
         Log.infof("User %s left on error: ", player, throwable);
     }
@@ -88,9 +90,22 @@ public class FunWithFlagsWebSocket {
     @Scheduled(every = "1s")
     public void tickGames() {
         funWithFlagsGame.tick();
+
+        var waitingPlayers = lobby.waitingPlayers();
+        for (var player : waitingPlayers) {
+            var html = Templates.lobby(player, waitingPlayers).render();
+            player.session().getAsyncRemote().sendObject(html);
+        }
     }
 
     public void onPlayerRegistered(@Observes PlayerRegistered event) {
+        var waitingPlayers = lobby.waitingPlayers();
+        for (var player : waitingPlayers) {
+            var html = Templates.lobby(player, waitingPlayers).render();
+            player.session().getAsyncRemote().sendObject(html);
+        }
+    }
+    public void onPlayerUnregistered(@Observes PlayerUnregistered event) {
         var waitingPlayers = lobby.waitingPlayers();
         for (var player : waitingPlayers) {
             var html = Templates.lobby(player, waitingPlayers).render();
