@@ -153,6 +153,7 @@ public class Game {
         var playerToRemove = event.player();
         if (players.remove(playerToRemove)) {
             if (players.size() <= 1) {
+                gameOver = true;
                 // fire game over
                 gameFinished.fire(new GameFinished(this, "Last player standing"));
             }
